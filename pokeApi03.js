@@ -122,10 +122,12 @@ async function showData(promisesOrPokemons) {
 
 function addTypeOption(arr) {
   arr.forEach((obj) => {
-    const option = document.createElement("option");
-    option.value = obj.name;
-    option.innerText = obj.name;
-    filterByType.append(option);
+    if (obj.name !== "unknown") {
+      const option = document.createElement("option");
+      option.value = obj.name;
+      option.innerText = obj.name;
+      filterByType.append(option);
+    }
   });
 }
 
