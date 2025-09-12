@@ -1,5 +1,9 @@
 let container = document.querySelector(".container");
+let filterByType = document.querySelector("#filterByType");
+let pokemons = [];
+
 let url = "https://pokeapi.co/api/v2/pokemon?limit=20&offset=0";
+let typeUrl = "https://pokeapi.co/api/v2/type/";
 
 async function fetchData(url) {
   let response = await fetch(url);
@@ -9,6 +13,11 @@ async function fetchData(url) {
 }
 
 window.addEventListener("load", async () => {
+  const types = await fetchData(typeUrl);
+  console.log(types.results);
+
+  addTypeOption(types.results);
+
   let res = await fetchData(url);
   let results = res.results;
   // console.log(results);
@@ -26,6 +35,8 @@ window.addEventListener("load", async () => {
   showData(promises);
 });
 
+filterByType.addEventListener("change", filterPokemons);
+
 async function showData(promises) {
   let final = await Promise.all(promises);
   console.log(final);
@@ -39,7 +50,6 @@ async function showData(promises) {
     let img = document.createElement("img");
     let para1 = document.createElement("p");
     let para2 = document.createElement("p");
-    
 
     //back-card
     let flipCardBack = document.createElement("div");
@@ -82,4 +92,28 @@ async function showData(promises) {
     flipCard.append(flipCardInner);
     container.append(flipCard);
   }
+}
+
+function addTypeOption(arr) {
+  arr.forEach((obj) => {
+    const option = document.createElement("option");
+    option.value = obj.name;
+    option.innerText = obj.name;
+    filterByType.append(option);
+    pokemons.push(option.value);
+  });
+  console.log(pokemons);
+}
+
+// function filterPokemons(e) {
+//   const matchedPokemons = pokemons.filter((pokemon) => {
+//     return pokemon.types.map((obj) => {
+//       return obj.type.name.includes(e.target.value);
+//     });
+//   });
+//   console.log(matchedPokemons);
+// }
+
+function filterPokemons(e) {
+  
 }
