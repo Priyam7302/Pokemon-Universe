@@ -1,26 +1,31 @@
 let container = document.querySelector(".container");
 let filterByType = document.querySelector("#filterByType");
-let pokemons = [];
+let searchBox = document.querySelector("#searchBox");
+let loadMoreBtn = document.querySelector("#loadmore");
 
-let url = "https://pokeapi.co/api/v2/pokemon?limit=20&offset=0";
+let pokemons = [];
+let allPokemons = [];
+let limit = 20;
+let offset = 0;
+
+// let url = "https://pokeapi.co/api/v2/pokemon?limit=20&offset=0";
+let url = "https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}";
+
 let typeUrl = "https://pokeapi.co/api/v2/type/";
 
 async function fetchData(url) {
   let response = await fetch(url);
   let result = await response.json();
-  // console.log(result);
   return result;
 }
 
 window.addEventListener("load", async () => {
   const types = await fetchData(typeUrl);
   console.log(types.results);
-
   addTypeOption(types.results);
 
   let res = await fetchData(url);
   let results = res.results;
-  // console.log(results);
 
   let promises = [];
 
@@ -30,30 +35,48 @@ window.addEventListener("load", async () => {
     let promise = fetch(uri).then((r) => r.json());
     promises.push(promise);
   }
-  // console.log(promises);
-
+  console.log(promises);
   showData(promises);
 });
 
-filterByType.addEventListener("change", filterPokemons);
+async function showData(promisesOrPokemons) {
+  let final;
 
-async function showData(promises) {
-  let final = await Promise.all(promises);
-  console.log(final);
+  if (promisesOrPokemons[0] && promisesOrPokemons[0].name) {
+    final = promisesOrPokemons;
+  } else {
+    final = await Promise.all(promisesOrPokemons);
+  }
+
+  // If this is the first full fetch, save master copy
+  if (allPokemons.length === 0 || final.length > allPokemons.length) {
+    allPokemons = final;
+  }
+
+  pokemons = final;
+  console.log("Currently showing:", pokemons);
+
+  container.innerHTML = "";
   for (let i = 0; i < final.length; i++) {
     let flipCard = document.createElement("div");
     flipCard.classList.add("flip-card");
+
     let flipCardInner = document.createElement("div");
     flipCardInner.classList.add("flip-card-inner");
+
     let flipCardFront = document.createElement("div");
     flipCardFront.classList.add("flip-card-front");
+
     let img = document.createElement("img");
     let para1 = document.createElement("p");
+    para1.classList.add("pokemon-name");
+    //para 2
     let para2 = document.createElement("p");
-
-    //back-card
+    para2.classList.add("pokemon-type");
+    // back card
     let flipCardBack = document.createElement("div");
     flipCardBack.classList.add("flip-card-back");
+
     let height = document.createElement("p");
     let weight = document.createElement("p");
     let hp = document.createElement("p");
@@ -64,7 +87,10 @@ async function showData(promises) {
     let speed = document.createElement("p");
 
     para1.innerText = final[i].name;
-    para2.innerText = "Type:" + final[i].types[0].type.name;
+    for (let j = 0; j < final[i].types.length; j++) {
+      // para2.innerText = "Type: " + final[i].types[j].type.name;
+      para2.innerHTML = `Type: <span class="pokemon-type-value">${pokemons[i].types[j].type.name}</span>`;
+    }
 
     img.src = final[i].sprites.other.dream_world.front_default;
     height.innerText = "Height: " + final[i].height + "cm";
@@ -100,20 +126,139 @@ function addTypeOption(arr) {
     option.value = obj.name;
     option.innerText = obj.name;
     filterByType.append(option);
-    pokemons.push(option.value);
   });
-  console.log(pokemons);
 }
 
+filterByType.addEventListener("change", filterPokemons);
+searchBox.addEventListener("input", searchPokemons);
+
 // function filterPokemons(e) {
-//   const matchedPokemons = pokemons.filter((pokemon) => {
-//     return pokemon.types.map((obj) => {
-//       return obj.type.name.includes(e.target.value);
-//     });
-//   });
-//   console.log(matchedPokemons);
+//   let selectedType = e.target.value;
+//   let matched = [];
+
+//   if (selectedType === "all") {
+//     showData(allPokemons); // reset to all
+//     return;
+//   }
+
+//   for (let i = 0; i < allPokemons.length; i++) {
+//     let pokemon = allPokemons[i];
+
+//     for (let j = 0; j < pokemon.types.length; j++) {
+//       let typeName = pokemon.types[j].type.name;
+
+//       if (typeName === selectedType) {
+//         matched.push(pokemon);
+//         break;
+//       }
+//     }
+//   }
+
+//   showData(matched);
 // }
 
 function filterPokemons(e) {
-  
+  if (e.target.value === "" || e.target.value === "all") {
+    showData(allPokemons);
+  } else {
+    const matchedPokemons = allPokemons.filter((object) => {
+      return object.types.find((obj) => obj.type.name.includes(e.target.value));
+    });
+    showData(matchedPokemons);
+  }
+}
+
+function searchPokemons(e) {
+  let text = e.target.value.toLowerCase();
+
+  if (text === "") {
+    showData(allPokemons);
+    return;
+  } else {
+    const matched = allPokemons.filter((pokemon) => {
+      return pokemon.name.includes(text);
+    });
+
+    showData(matched);
+  }
+}
+
+loadMoreBtn.addEventListener("click", async () => {
+  offset += limit;
+  let res = await fetchData(
+    `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`
+  );
+  let results = res.results;
+
+  let promises = results.map((r) => fetch(r.url).then((d) => d.json()));
+  let newPokemons = await Promise.all(promises);
+
+  allPokemons = [...allPokemons, ...newPokemons];
+
+  appendData(newPokemons);
+});
+
+function appendData(pokemons) {
+  for (let i = 0; i < pokemons.length; i++) {
+    let flipCard = document.createElement("div");
+    flipCard.classList.add("flip-card");
+
+    let flipCardInner = document.createElement("div");
+    flipCardInner.classList.add("flip-card-inner");
+
+    let flipCardFront = document.createElement("div");
+    flipCardFront.classList.add("flip-card-front");
+
+    let img = document.createElement("img");
+    let para1 = document.createElement("p");
+    para1.classList.add("pokemon-name");
+
+    let para2 = document.createElement("p");
+    para2.classList.add("pokemon-type");
+
+    let flipCardBack = document.createElement("div");
+    flipCardBack.classList.add("flip-card-back");
+
+    let height = document.createElement("p");
+    let weight = document.createElement("p");
+    let hp = document.createElement("p");
+    let attack = document.createElement("p");
+    let defense = document.createElement("p");
+    let specialAttack = document.createElement("p");
+    let specialDefense = document.createElement("p");
+    let speed = document.createElement("p");
+
+    para1.innerText = pokemons[i].name;
+    for (let j = 0; j < pokemons[i].types.length; j++) {
+      // para2.innerText = "Type: " + pokemons[i].types[j].type.name;
+      para2.innerHTML = `Type: <span class="pokemon-type-value">${pokemons[i].types[j].type.name}</span>`;
+    }
+
+    img.src = pokemons[i].sprites.other.dream_world.front_default;
+    height.innerText = "Height: " + pokemons[i].height + "cm";
+    weight.innerText = "Weight: " + pokemons[i].weight + "kg";
+    hp.innerText = "hp: " + pokemons[i].stats[0].base_stat;
+    attack.innerText = "attack: " + pokemons[i].stats[1].base_stat;
+    defense.innerText = "defense: " + pokemons[i].stats[2].base_stat;
+    specialAttack.innerText =
+      "special-attack: " + pokemons[i].stats[3].base_stat;
+    specialDefense.innerText =
+      "special-defense: " + pokemons[i].stats[4].base_stat;
+    speed.innerText = "speed: " + pokemons[i].stats[5].base_stat;
+
+    flipCardFront.append(img, para1, para2);
+    flipCardBack.append(
+      height,
+      weight,
+      hp,
+      attack,
+      defense,
+      specialAttack,
+      specialDefense,
+      speed
+    );
+    flipCardInner.append(flipCardFront, flipCardBack);
+    flipCard.append(flipCardInner);
+    container.append(flipCard);
+  }
 }

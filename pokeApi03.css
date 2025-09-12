@@ -95,3 +95,104 @@ h1 {
   text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
 }
 
+.prev-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* spacing between search and category */
+  margin: 20px 0;
+  flex-wrap: wrap; /* responsive for small screens */
+}
+
+/* Dropdown */
+.category select {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid #2980b9;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  color: #333;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.category select:hover {
+  border-color: #1a5276;
+  background-color: #eef7ff;
+}
+
+/* Search box */
+.search input {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid #2980b9;
+  border-radius: 8px;
+  outline: none;
+  width: 250px;
+  transition: 0.3s ease;
+}
+
+.search input:focus {
+  border-color: #1a5276;
+  box-shadow: 0 0 8px rgba(41, 128, 185, 0.5);
+}
+
+/* For mobile, stack vertically */
+@media (max-width: 600px) {
+  .prev-container {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .search input {
+    width: 100%;
+  }
+}
+/* Load More button */
+#loadmore {
+  display: block;
+  margin: 30px auto;
+  padding: 12px 30px;
+  font-size: 18px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #2980b9, #3498db);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#loadmore:hover {
+  background: linear-gradient(135deg, #1c5d91, #2980b9);
+  transform: scale(1.05);
+}
+
+#loadmore:active {
+  transform: scale(0.97);
+}
+
+/* Pokémon name */
+.flip-card-front .pokemon-name {
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: capitalize;
+  margin: 0;
+}
+
+/* Pokémon type */
+.flip-card-front .pokemon-type {
+  font-size: 16px;
+  font-weight: normal;
+  margin-top: 4px;
+  color: #555;
+}
+
+.pokemon-type {
+  font-weight: 300; /* lighter font for "Type:" */
+  color: #444; /* optional: slightly dimmer */
+}
+
+.pokemon-type-value {
+  font-weight: 700; /* bold for actual type like poison */
+  color: #111; /* darker to highlight */
+}
