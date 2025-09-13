@@ -10,8 +10,10 @@ let offset = 0;
 
 // let url = "https://pokeapi.co/api/v2/pokemon?limit=20&offset=0";
 let url = "https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}";
-
 let typeUrl = "https://pokeapi.co/api/v2/type/";
+
+filterByType.addEventListener("change", filterPokemons);
+searchBox.addEventListener("input", searchPokemons);
 
 async function fetchData(url) {
   let response = await fetch(url);
@@ -40,24 +42,20 @@ window.addEventListener("load", async () => {
 });
 
 async function showData(promisesOrPokemons) {
-  let final;
-
-  if (promisesOrPokemons[0] && promisesOrPokemons[0].name) {
-    final = promisesOrPokemons;
-  } else {
-    final = await Promise.all(promisesOrPokemons);
-  }
-
-  // If this is the first full fetch, save master copy
-  if (allPokemons.length === 0 || final.length > allPokemons.length) {
-    allPokemons = final;
-  }
-
-  pokemons = final;
+  // This check was used to handle both cases: when data came as Promises (from API) or as already resolved Pokémon objects (from filter/search).
+  // if (promisesOrPokemons[0] && promisesOrPokemons[0].name) {
+  //   pokemons = promisesOrPokemons;
+  // } else {
+  //   pokemons = await Promise.all(promisesOrPokemons);
+  // }
+  pokemons = await Promise.all(promisesOrPokemons);
   console.log("Currently showing:", pokemons);
+  if (allPokemons.length === 0 || pokemons.length > allPokemons.length) {
+    allPokemons = pokemons;
+  }
 
   container.innerHTML = "";
-  for (let i = 0; i < final.length; i++) {
+  for (let i = 0; i < pokemons.length; i++) {
     let flipCard = document.createElement("div");
     flipCard.classList.add("flip-card");
 
@@ -70,10 +68,10 @@ async function showData(promisesOrPokemons) {
     let img = document.createElement("img");
     let para1 = document.createElement("p");
     para1.classList.add("pokemon-name");
-    //para 2
+
     let para2 = document.createElement("p");
     para2.classList.add("pokemon-type");
-    // back card
+
     let flipCardBack = document.createElement("div");
     flipCardBack.classList.add("flip-card-back");
 
@@ -86,22 +84,22 @@ async function showData(promisesOrPokemons) {
     let specialDefense = document.createElement("p");
     let speed = document.createElement("p");
 
-    para1.innerText = final[i].name;
-    for (let j = 0; j < final[i].types.length; j++) {
-      // para2.innerText = "Type: " + final[i].types[j].type.name;
+    para1.innerText = pokemons[i].name;
+    for (let j = 0; j < pokemons[i].types.length; j++) {
       para2.innerHTML = `Type: <span class="pokemon-type-value">${pokemons[i].types[j].type.name}</span>`;
     }
 
-    img.src = final[i].sprites.other.dream_world.front_default;
-    height.innerText = "Height: " + final[i].height + "cm";
-    weight.innerText = "Weight: " + final[i].weight + "kg";
-    hp.innerText = "hp: " + final[i].stats[0].base_stat;
-    attack.innerText = "attack: " + final[i].stats[1].base_stat;
-    defense.innerText = "defense: " + final[i].stats[2].base_stat;
-    specialAttack.innerText = "special-attack: " + final[i].stats[3].base_stat;
+    img.src = pokemons[i].sprites.other.dream_world.front_default;
+    height.innerText = "Height: " + pokemons[i].height + "cm";
+    weight.innerText = "Weight: " + pokemons[i].weight + "kg";
+    hp.innerText = "hp: " + pokemons[i].stats[0].base_stat;
+    attack.innerText = "attack: " + pokemons[i].stats[1].base_stat;
+    defense.innerText = "defense: " + pokemons[i].stats[2].base_stat;
+    specialAttack.innerText =
+      "special-attack: " + pokemons[i].stats[3].base_stat;
     specialDefense.innerText =
-      "special-defense: " + final[i].stats[4].base_stat;
-    speed.innerText = "speed: " + final[i].stats[5].base_stat;
+      "special-defense: " + pokemons[i].stats[4].base_stat;
+    speed.innerText = "speed: " + pokemons[i].stats[5].base_stat;
 
     flipCardFront.append(img, para1, para2);
     flipCardBack.append(
@@ -130,9 +128,6 @@ function addTypeOption(arr) {
     }
   });
 }
-
-filterByType.addEventListener("change", filterPokemons);
-searchBox.addEventListener("input", searchPokemons);
 
 // function filterPokemons(e) {
 //   let selectedType = e.target.value;
@@ -201,6 +196,7 @@ loadMoreBtn.addEventListener("click", async () => {
 });
 
 function appendData(pokemons) {
+  console.log("Currently showing:", pokemons);
   for (let i = 0; i < pokemons.length; i++) {
     let flipCard = document.createElement("div");
     flipCard.classList.add("flip-card");
