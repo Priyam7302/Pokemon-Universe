@@ -9,7 +9,7 @@ let limit = 20;
 let offset = 0;
 
 // let url = "https://pokeapi.co/api/v2/pokemon?limit=20&offset=0";
-let url = "https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}";
+let url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`;
 let typeUrl = "https://pokeapi.co/api/v2/type/";
 
 filterByType.addEventListener("change", filterPokemons);
@@ -43,19 +43,19 @@ window.addEventListener("load", async () => {
 
 async function showData(promisesOrPokemons) {
   // This check was used to handle both cases: when data came as Promises (from API) or as already resolved Pokémon objects (from filter/search).
-  // if (promisesOrPokemons[0] && promisesOrPokemons[0].name) {
-  //   pokemons = promisesOrPokemons;
-  // } else {
-  //   pokemons = await Promise.all(promisesOrPokemons);
-  // }
-  pokemons = await Promise.all(promisesOrPokemons);
+  if (promisesOrPokemons[0] && promisesOrPokemons[0].name) {
+    pokemons = promisesOrPokemons;
+  } else {
+    pokemons = await Promise.all(promisesOrPokemons);
+  }
+  // pokemons = await Promise.all(promisesOrPokemons);
   console.log("Currently showing:", pokemons);
   if (allPokemons.length === 0 || pokemons.length > allPokemons.length) {
     allPokemons = pokemons;
   }
 
   container.innerHTML = "";
-  for (let i = 0; i < pokemons.length; i++) {
+  for (let i = 0; i < allPokemons.length; i++) {
     let flipCard = document.createElement("div");
     flipCard.classList.add("flip-card");
 
@@ -71,6 +71,8 @@ async function showData(promisesOrPokemons) {
 
     let para2 = document.createElement("p");
     para2.classList.add("pokemon-type");
+    let para3 = document.createElement("p");
+    para3.classList.add("pokemon-type");
 
     let flipCardBack = document.createElement("div");
     flipCardBack.classList.add("flip-card-back");
@@ -85,9 +87,15 @@ async function showData(promisesOrPokemons) {
     let speed = document.createElement("p");
 
     para1.innerText = pokemons[i].name;
-    for (let j = 0; j < pokemons[i].types.length; j++) {
-      para2.innerHTML = `Type: <span class="pokemon-type-value">${pokemons[i].types[j].type.name}</span>`;
-    }
+    let typeContainer = document.createElement("div");
+    typeContainer.classList.add("pokemon-types");
+
+    pokemons[i].types.forEach((t) => {
+      let typeP = document.createElement("p");
+      typeP.classList.add("pokemon-type");
+      typeP.innerText = t.type.name;
+      typeContainer.append(typeP);
+    });
 
     img.src = pokemons[i].sprites.other.dream_world.front_default;
     height.innerText = "Height: " + pokemons[i].height + "cm";
@@ -101,7 +109,7 @@ async function showData(promisesOrPokemons) {
       "special-defense: " + pokemons[i].stats[4].base_stat;
     speed.innerText = "speed: " + pokemons[i].stats[5].base_stat;
 
-    flipCardFront.append(img, para1, para2);
+    flipCardFront.append(img, para1, typeContainer);
     flipCardBack.append(
       height,
       weight,
@@ -157,13 +165,20 @@ function addTypeOption(arr) {
 function filterPokemons(e) {
   if (e.target.value === "" || e.target.value === "all") {
     showData(allPokemons);
+    return;
+  }
+
+  const matchedPokemons = allPokemons.filter((object) => {
+    return object.types.find((obj) => obj.type.name.includes(e.target.value));
+  });
+
+  if (matchedPokemons.length === 0) {
+    container.innerHTML = "<p>No Pokémon Found</p>";
   } else {
-    const matchedPokemons = allPokemons.filter((object) => {
-      return object.types.find((obj) => obj.type.name.includes(e.target.value));
-    });
     showData(matchedPokemons);
   }
 }
+
 
 function searchPokemons(e) {
   let text = e.target.value.toLowerCase();
@@ -171,14 +186,19 @@ function searchPokemons(e) {
   if (text === "") {
     showData(allPokemons);
     return;
-  } else {
-    const matched = allPokemons.filter((pokemon) => {
-      return pokemon.name.includes(text);
-    });
+  }
 
+  const matched = allPokemons.filter((pokemon) => {
+    return pokemon.name.includes(text);
+  });
+
+  if (matched.length === 0) {
+    container.innerHTML = "<p>No Pokémon Found</p>";
+  } else {
     showData(matched);
   }
 }
+
 
 loadMoreBtn.addEventListener("click", async () => {
   offset += limit;
@@ -213,6 +233,8 @@ function appendData(pokemons) {
 
     let para2 = document.createElement("p");
     para2.classList.add("pokemon-type");
+    let para3 = document.createElement("p");
+    para3.classList.add("pokemon-type");
 
     let flipCardBack = document.createElement("div");
     flipCardBack.classList.add("flip-card-back");
@@ -227,10 +249,15 @@ function appendData(pokemons) {
     let speed = document.createElement("p");
 
     para1.innerText = pokemons[i].name;
-    for (let j = 0; j < pokemons[i].types.length; j++) {
-      // para2.innerText = "Type: " + pokemons[i].types[j].type.name;
-      para2.innerHTML = `Type: <span class="pokemon-type-value">${pokemons[i].types[j].type.name}</span>`;
-    }
+    let typeContainer = document.createElement("div");
+    typeContainer.classList.add("pokemon-types");
+
+    pokemons[i].types.forEach((t) => {
+      let typeP = document.createElement("p");
+      typeP.classList.add("pokemon-type");
+      typeP.innerText = t.type.name;
+      typeContainer.append(typeP);
+    });
 
     img.src = pokemons[i].sprites.other.dream_world.front_default;
     height.innerText = "Height: " + pokemons[i].height + "cm";
@@ -244,7 +271,7 @@ function appendData(pokemons) {
       "special-defense: " + pokemons[i].stats[4].base_stat;
     speed.innerText = "speed: " + pokemons[i].stats[5].base_stat;
 
-    flipCardFront.append(img, para1, para2);
+    flipCardFront.append(img, para1, typeContainer);
     flipCardBack.append(
       height,
       weight,
