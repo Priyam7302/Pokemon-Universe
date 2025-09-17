@@ -165,23 +165,112 @@ h1 {
   margin: 0;
 }
 
+.pokemon-types {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.pokemon-type {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+}
+
+.pokemon-type.grass {
+  background-color: #78c850;
+  color: #000;
+}
+
+.pokemon-type.poison {
+  background-color: #a040a0;
+}
+
+.pokemon-type.fire {
+  background-color: #f08030;
+}
+
+.pokemon-type.water {
+  background-color: #6890f0;
+}
+
+.pokemon-type.bug {
+  background-color: #a8b820;
+}
+
+.pokemon-type.normal {
+  background-color: #a8a878;
+}
+
+.pokemon-type.electric {
+  background-color: #f8d030;
+  color: #000;
+}
+
+.pokemon-type.ground {
+  background-color: #e0c068;
+}
+
+.pokemon-type.fighting {
+  background-color: #c03028;
+}
+
+.pokemon-type.psychic {
+  background-color: #f85888;
+}
+
+.pokemon-type.rock {
+  background-color: #b8a038;
+}
+
+.pokemon-type.ice {
+  background-color: #98d8d8;
+  color: #000;
+}
+
+.pokemon-type.dragon {
+  background-color: #7038f8;
+}
+
+.pokemon-type.ghost {
+  background-color: #705898;
+}
+
+.pokemon-type.dark {
+  background-color: #705848;
+}
+
+.pokemon-type.steel {
+  background-color: #b8b8d0;
+  color: #000;
+}
+
+.pokemon-type.fairy {
+  background-color: #ee99ac;
+  color: #000;
+}
+
 .flip-card-front .pokemon-type {
   font-size: 16px;
   font-weight: normal;
   margin-top: 4px;
-  color: #555;
+  /* color: #555; */
 }
-
+/* 
 .pokemon-type {
   font-weight: 300;
   color: #444;
-}
+} */
 
 .pokemon-type-value {
   font-weight: 700;
   color: #111;
 }
 
-body{
+body {
   font-family: "Poppins";
 }

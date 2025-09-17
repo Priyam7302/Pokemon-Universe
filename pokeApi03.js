@@ -92,7 +92,7 @@ async function showData(promisesOrPokemons) {
 
     pokemons[i].types.forEach((t) => {
       let typeP = document.createElement("p");
-      typeP.classList.add("pokemon-type");
+      typeP.classList.add("pokemon-type", t.type.name);
       typeP.innerText = t.type.name;
       typeContainer.append(typeP);
     });
@@ -179,7 +179,6 @@ function filterPokemons(e) {
   }
 }
 
-
 function searchPokemons(e) {
   let text = e.target.value.toLowerCase();
 
@@ -198,7 +197,6 @@ function searchPokemons(e) {
     showData(matched);
   }
 }
-
 
 loadMoreBtn.addEventListener("click", async () => {
   offset += limit;
@@ -254,7 +252,7 @@ function appendData(pokemons) {
 
     pokemons[i].types.forEach((t) => {
       let typeP = document.createElement("p");
-      typeP.classList.add("pokemon-type");
+      typeP.classList.add("pokemon-type", t.type.name);
       typeP.innerText = t.type.name;
       typeContainer.append(typeP);
     });
